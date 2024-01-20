@@ -1,9 +1,8 @@
 <?php
-
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\FoodController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 //public routes
+
 Route::post('/register', [UserController::class,'register']);
 Route::post('/login', [UserController::class,'login']);
 //protected routes

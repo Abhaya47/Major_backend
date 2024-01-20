@@ -40,6 +40,11 @@ class UserController extends Controller
         ]);
 
         $user=User::where('email',$fields['email'])->first();
+        if($user==null){
+            return response(json_encode([
+                "message"=>"Invalid credential"
+            ]),401);
+        }
         $hash=bcrypt($fields['password']);
         if(Hash::check($fields['password'],$user->password )){
             $token=$user->createToken('apptoken')->plainTextToken;
