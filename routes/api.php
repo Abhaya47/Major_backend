@@ -19,9 +19,12 @@ use App\Http\Controllers\FoodController;
 Route::post('/register', [UserController::class,'register']);
 Route::post('/login', [UserController::class,'login']);
 //protected routes
-//Route::group(['middelware'=>['auth:sanctum']], function () {
-//
-//});
+Route::group(['middleware'=>['auth:sanctum']], function () {
+    Route::get('/food',[FoodController::class,'consumedfood']);
+    Route::post('/food',[FoodController::class,'save']);
+    Route::put('/food',[FoodController::class,'update']);
+});
+
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

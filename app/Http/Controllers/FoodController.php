@@ -2,63 +2,80 @@
 
 namespace App\Http\Controllers;
 use App\Models\Food;
-
+use App\Post;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use function PHPUnit\Framework\throwException;
 
 class FoodController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
+    public function consumedfood(Request $request){
+        $user = Auth::user();
+        $request=json_decode($request->getContent(),true);
+        $date=$this->validate_date($request['date']);
+        $food=Food::query()->whereDate( 'consumed_time','=',$date)->where('uid','=',$user->id)->get();
+        return response(json_encode($food),200);
 
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+    public function save(Request $request){
+        $validatedData = $request->validate([
+            'name'=>'required|string',
+            'calorie'=>'string',
+            'description'=>'nullable|string'
+        ]);
+        $food=new Food();
+        $food->name=$validatedData['name'];
+        $food->calorie=$validatedData['calorie'];
+        $food->description=$validatedData['description'];
+        $user = Auth::user();
+        $food->uid=$user->id;
+        $food->save();
+        return response('',200);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'id'=>'required',
+            'name'=>'required|string',
+            'calorie'=>'string',
+            'description'=>'nullable|string'
+        ]);
+        $food=Food::find($validatedData['id']);
+        if($food==null){
+            return response('',401);
+        }
+        $food->name=$validatedData['name'];
+        $food->calorie=$validatedData['calorie'];
+        $food->description=$validatedData['description'];
+        $user = Auth::user();
+        $food->uid=$user->id;
+        $food->save();
+        return response('',200);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function destroy($id)
     {
-        //
+        $food=Food::find($id);
+        $food->delete();
+        return $food;
+    }
+
+    private function validate_date($date){
+        try{
+            $date=Carbon::parse($date);
+            if($date->isFuture()){
+                header("Location:".route('food_take',Carbon::now()->format("Y-m-d")));
+                die;
+            }
+        }
+        catch(\Exception $e)
+        {
+            $date= Carbon::now();
+        }
+        return $date->format("Y-m-d");
     }
 }
