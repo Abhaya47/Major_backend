@@ -3,6 +3,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FoodController;
+use App\Http\Controllers\UserFeature;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,6 +24,13 @@ Route::group(['middleware'=>['auth:sanctum']], function () {
     Route::get('/food',[FoodController::class,'consumedfood']);
     Route::post('/food',[FoodController::class,'save']);
     Route::put('/food',[FoodController::class,'update']);
+    Route::delete('/food/{id}',[FoodController::class,'destroy']);
+
+
+    Route::get('/ufeature',[UserFeature::class,'view']);
+    Route::post('/ufeature',[UserFeature::class,'add']);
+    Route::put('/ufeature',[UserFeature::class,'update']);
+    Route::delete('/ufeature',[UserFeature::class,'destroy']);
 });
 
 

@@ -9,6 +9,8 @@ class Features extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+    public $primaryKey = "uid";
     protected $fillable=[
         'uid',
         'bmi',
@@ -18,7 +20,7 @@ class Features extends Model
     ];
 
     function owner(){
-        return $this->belongsTo('App\Models\User','uid','id');
+        return $this->belongsTo('App\Models\User','id','uid');
 
     }
 }
