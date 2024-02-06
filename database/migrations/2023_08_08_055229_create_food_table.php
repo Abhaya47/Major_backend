@@ -14,11 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('food', function (Blueprint $table) {
-            $table->id();
+            $table->id()->autoIncrement();
             $table->string('name');
             $table->string('description')->nullable();
             $table->dateTime('consumed_time')->default(now());
             $table->float('calorie');
+            $table->integer('count')->default(1);
+            $table->unsignedBigInteger("uid");
+            $table->foreign('uid')->references('id')->on('users');
             $table->timestamps();
         });
     }
