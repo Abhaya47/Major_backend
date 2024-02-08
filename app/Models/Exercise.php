@@ -8,17 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Exercise extends Model
 {
     use HasFactory;
-    protected $fillable=[
+
+    public $table = 'exercise';
+
+    public $timestamps = false;
+
+    protected $fillable = [
         'uid',
         'name',
         'reps',
         'description',
         'performed_time',
-        'part'
     ];
 
-    function owner(){
-        return $this->belongsTo('App\Models\User','id','uid');
+    function owner()
+    {
+        return $this->belongsTo('App\Models\User', 'id', 'uid');
     }
 
     protected $casts = [
