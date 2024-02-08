@@ -47,7 +47,8 @@ class ExerciseController extends Controller
         }
 
         $user = Auth::user();
-        //@todo: Please add this logic to other update and delete endpoints as well
+        //@todo: Add this logic to other update and delete endpoin
+        //ts as well
         if($user->id != $exercise->uid)
         {
             return response('NOT YOUR RECORD BRO, I WILL REPORT THIS',401);
