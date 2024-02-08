@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Exercise;
-use App\Models\Food;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +25,7 @@ class ExerciseController extends Controller
         ]);
         $exercise=new Exercise();
         $exercise->name=$validatedData['name'];
-        $exercise->calorie=$validatedData['reps'];
+        $exercise->reps=$validatedData['reps'];
         $exercise->description=$validatedData['description'];
         $user = Auth::user();
         $exercise->uid=$user->id;
@@ -47,7 +46,7 @@ class ExerciseController extends Controller
             return response('',401);
         }
         $exercise->name=$validatedData['name'];
-        $exercise->calorie=$validatedData['reps'];
+        $exercise->reps=$validatedData['reps'];
         $exercise->description=$validatedData['description'];
         $user = Auth::user();
         $exercise->uid=$user->id;
@@ -66,7 +65,7 @@ class ExerciseController extends Controller
         try{
             $date=Carbon::parse($date);
             if($date->isFuture()){
-                header("Location:".route('food_take',Carbon::now()->format("Y-m-d")));
+                header("Location:".route('exercise_performed',Carbon::now()->format("Y-m-d")));
                 die;
             }
         }
