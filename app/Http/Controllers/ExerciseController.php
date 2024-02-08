@@ -1,36 +1,36 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Exercise;
 use App\Models\Food;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use function PHPUnit\Framework\throwException;
 
-class FoodController extends Controller
+class ExerciseController extends Controller
 {
-    public function consumedfood(Request $request){
+    public function exercisedone(Request $request){
         $user = Auth::user();
         $request=json_decode($request->getContent(),true);
         $date=$this->validate_date($request['date']);
-        $food=Food::query()->whereDate( 'consumed_time','=',$date)->where('uid','=',$user->id)->get();
-        return response(json_encode($food),200);
-
+        $exercise=Exercise::query()->whereDate( 'performed_time','=',$date)->where('uid','=',$user->id)->get();
+        return response(json_encode($exercise),200);
     }
 
     public function save(Request $request){
         $validatedData = $request->validate([
             'name'=>'required|string',
-            'calorie'=>'integer',
+            'reps'=>'integer',
             'description'=>'nullable|string'
         ]);
-        $food=new Food();
-        $food->name=$validatedData['name'];
-        $food->calorie=$validatedData['calorie'];
-        $food->description=$validatedData['description'];
+        $exercise=new Exercise();
+        $exercise->name=$validatedData['name'];
+        $exercise->calorie=$validatedData['reps'];
+        $exercise->description=$validatedData['description'];
         $user = Auth::user();
-        $food->uid=$user->id;
-        $food->save();
+        $exercise->uid=$user->id;
+        $exercise->save();
         return response('',200);
     }
 
@@ -39,30 +39,29 @@ class FoodController extends Controller
         $validatedData = $request->validate([
             'id'=>'required',
             'name'=>'required|string',
-            'calorie'=>'integer',
+            'reps'=>'integer',
             'description'=>'nullable|string'
         ]);
-        $food=Food::find($validatedData['id']);
-        if($food==null){
+        $exercise=Exercise::find($validatedData['id']);
+        if($exercise==null){
             return response('',401);
         }
-        $food->name=$validatedData['name'];
-        $food->calorie=$validatedData['calorie'];
-        $food->description=$validatedData['description'];
+        $exercise->name=$validatedData['name'];
+        $exercise->calorie=$validatedData['reps'];
+        $exercise->description=$validatedData['description'];
         $user = Auth::user();
-        $food->uid=$user->id;
-        $food->save();
+        $exercise->uid=$user->id;
+        $exercise->save();
         return response('',200);
     }
 
-
     public function destroy($id)
     {
-        $food=Food::find($id);
-        $food->delete();
-        return $food;
+        $exercise=Exercise::find($id);
+        $exercise->delete();
+        return $exercise;
     }
-
+    //
     private function validate_date($date){
         try{
             $date=Carbon::parse($date);

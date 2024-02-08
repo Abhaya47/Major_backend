@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\ExerciseController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +27,11 @@ Route::group(['middleware'=>['auth:sanctum']], function () {
     Route::post('/food',[FoodController::class,'save']);
     Route::put('/food',[FoodController::class,'update']);
     Route::delete('/food/{id}',[FoodController::class,'destroy']);
+
+    Route::get('/exercise',[ExerciseController::class,'exercisedone']);
+    Route::post('/exercise',[ExerciseController::class,'save']);
+    Route::put('/exercise',[ExerciseController::class,'update']);
+    Route::delete('/exercise/{id}',[ExerciseController::class,'destroy']);
 
 
     Route::get('/ufeature',[UserFeature::class,'view']);
