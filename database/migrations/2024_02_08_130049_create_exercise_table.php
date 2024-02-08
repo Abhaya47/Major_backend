@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('name');
             $table->integer('reps');
             $table->string('description');
-            $table->string('part');
             $table->dateTime('performed_time')->default(now());
             $table->unsignedBigInteger("uid");
             $table->foreign('uid')->references('id')->on('users');
