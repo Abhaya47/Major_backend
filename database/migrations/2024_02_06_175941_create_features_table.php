@@ -13,8 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->date('DOB')->nullable();
+        Schema::create('features', function (Blueprint $table) {
+            $table->float('bmi');
+            $table->float('weight');
+            $table->float('height');
+            $table->float('pressure');
+            $table->unsignedBigInteger("uid");
+            $table->foreign('uid')->references('id')->on('users');
         });
     }
 
@@ -25,8 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('DOB');
-        });
+        Schema::dropIfExists('features');
     }
 };
