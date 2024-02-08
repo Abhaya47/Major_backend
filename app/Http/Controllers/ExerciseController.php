@@ -45,10 +45,17 @@ class ExerciseController extends Controller
         if($exercise==null){
             return response('',401);
         }
+
+        $user = Auth::user();
+        //@todo: Please add this logic to other update and delete endpoints as well
+        if($user->id != $exercise->uid)
+        {
+            return response('NOT YOUR RECORD BRO, I WILL REPORT THIS',401);
+        }
+
         $exercise->name=$validatedData['name'];
         $exercise->reps=$validatedData['reps'];
         $exercise->description=$validatedData['description'];
-        $user = Auth::user();
         $exercise->uid=$user->id;
         $exercise->save();
         return response('',200);
