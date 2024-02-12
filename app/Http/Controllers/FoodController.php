@@ -10,9 +10,8 @@ class FoodController extends Controller
 {
     public function consumedfood(Request $request){
         $user = Auth::user();
-        $request=json_decode($request->getContent(),true);
-        $date=$this->validate_date($request['date']);
-        $food=Food::query()->whereDate( 'consumed_time','=',$date)->where('uid','=',$user->id)->get();
+        $date = $this->validate_date($request->query->get('date'));
+        $food=Food::query()->whereDate( 'updated_at','=',$date)->where('uid','=',$user->id)->get();
         return response(json_encode($food),200);
 
     }
