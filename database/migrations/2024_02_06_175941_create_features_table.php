@@ -18,7 +18,7 @@ return new class extends Migration
             $table->float('weight');
             $table->float('height');
             $table->float('pressure');
-            $table->unsignedBigInteger("uid");
+            $table->unsignedBigInteger("uid")->unique();
             $table->foreign('uid')->references('id')->on('users');
         });
     }
