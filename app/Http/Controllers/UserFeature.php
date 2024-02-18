@@ -15,13 +15,19 @@ class UserFeature extends Controller
         $validatedData=$request->validate([
             'weight'=>'required',
             'height'=>'required',
-            'pressure'=>'nullable'
+            'gender'=>'required',
+            'age'=>'required',
+            'pressure'=>'nullable',
+            'sugar'=>'nullable'
         ]);
         $user= Auth::user();
         $ufeature=new Features();
         $ufeature->weight=$validatedData['weight'];
         $ufeature->height=$validatedData['height'];
+        $ufeature->gender=$validatedData['gender'];
         $ufeature->pressure=$validatedData['pressure'];
+        $ufeature->sugar=$validatedData['sugar'];
+        $ufeature->age=$validatedData['age'];
         $ufeature->bmi=$validatedData['weight']/($validatedData['height']*$validatedData['height']);
         $ufeature->uid=$user->id;
         $ufeature->save();
@@ -32,14 +38,21 @@ class UserFeature extends Controller
         $validatedData=$request->validate([
             'weight'=>'required',
             'height'=>'required',
-            'pressure'=>'nullable'
+            'gender'=>'required',
+            'age'=>'required',
+            'pressure'=>'nullable',
+            'sugar'=>'nullable'
+
         ]);
         $user= Auth::user();
         $uid=$user->id;
         $ufeature=Features::query()->where('uid','=',$uid)->first();
         $ufeature->weight=$validatedData['weight'];
         $ufeature->height=$validatedData['height'];
+        $ufeature->gender=$validatedData['gender'];
         $ufeature->pressure=$validatedData['pressure'];
+        $ufeature->age=$validatedData['age'];
+        $ufeature->sugar=$validatedData['sugar'];
         $ufeature->bmi=$validatedData['weight']/($validatedData['height']*$validatedData['height']);
         $ufeature->save();
         return response('',200);

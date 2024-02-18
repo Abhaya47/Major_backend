@@ -14,8 +14,10 @@ class Features extends Model
     protected $fillable=[
         'uid',
         'bmi',
+        'gender',
         'weight',
         'height',
+        'sugar',
         'pressure'
     ];
 

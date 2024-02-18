@@ -13,7 +13,6 @@ class FoodController extends Controller
         $date = $this->validate_date($request->query->get('date'));
         $food=Food::query()->whereDate( 'updated_at','=',$date)->where('uid','=',$user->id)->get();
         return response(json_encode($food),200);
-
     }
 
     public function save(Request $request){
