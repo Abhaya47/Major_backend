@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ExerciseController;
 use App\Http\Controllers\MakeRecommendation;
+use App\Http\Controllers\RecommendExerciseController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -34,7 +35,8 @@ Route::group(['middleware'=>['auth:sanctum']], function () {
     Route::put('/exercise',[ExerciseController::class,'update']);
     Route::delete('/exercise/{id}',[ExerciseController::class,'destroy']);
 
-    Route::get('/recommend',[MakeRecommendation::class, 'calculate_caloric_needs']);
+    Route::get('/why',[MakeRecommendation::class, 'getRequest']);
+    Route::post('/recommendexercise',[RecommendExerciseController::class,'recommend']);
 
     Route::get('/ufeature',[UserFeature::class,'view']);
     Route::get('/ufeature',[UserFeature::class,'view']);
