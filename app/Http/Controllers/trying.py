@@ -27,16 +27,10 @@ numbers = [float(num) for num in numbers_list]
 model = tf.keras.models.load_model('/var/www/Major_backend/app/Http/Controllers/model')
 with open('/var/www/Major_backend/app/Http/Controllers/saved_dictionary.pkl', 'rb') as f:
     min_max_values = pickle.load(f)
-# label_encoder = joblib.load('/var/www/Major_backend/app/Http/Controllers/label_encoder_dict.joblib')
 data = {
     'BMI': [numbers[0]],       # Example BMI value
     'Systolic_Pressure': [numbers[1]],   # Example Systolic value
     'Sugar_Level': [numbers[2]]  # Example Sugar_Level value
-}
-data = {
-    'BMI': [32],       # Example BMI value
-    'Systolic_Pressure': [120],   # Example Systolic value
-    'Sugar_Level': [110]  # Example Sugar_Level value
 }
 # Create DataFrame from the dictionary
 demo_df = pd.DataFrame(data)
