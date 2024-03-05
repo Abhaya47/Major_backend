@@ -1,3 +1,5 @@
+print("hello")
+
 import tensorflow as tf
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.models import Sequential
