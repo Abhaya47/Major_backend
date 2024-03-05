@@ -1,17 +1,15 @@
+import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+from tensorflow.keras.optimizers import Adam
+import joblib
+import pandas as pd
+import numpy as np
+import pickle
+import sys
+
 print("hello")
-#
-# import tensorflow as tf
-# from tensorflow.keras.callbacks import EarlyStopping
-# from tensorflow.keras.models import Sequential
-# from tensorflow.keras.layers import LSTM, Dropout, Dense
-# from tensorflow.keras.optimizers import Adam
-# import joblib
-# import pandas as pd
-# import numpy as np
-# import pickle
-# import sys
-#
-# print("hello")
 # argument = sys.argv
 # numbers_string = argument[1]
 #
