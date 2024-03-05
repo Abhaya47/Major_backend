@@ -89,7 +89,6 @@ class MakeRecommendation extends Controller
             if($meal[2]==0 & $meal[3]==0){
                 $mealneeds = array('calories' => round($meal[0],2), 'total_fat' => round($meal[1],2), 'protein' =>$meal[4],'carbs' =>round($meal[5],2));
             }
-            dump($meal);
             $recommends[$i]=$this->meal($mealneeds);
             $i++;
             $frequency--;

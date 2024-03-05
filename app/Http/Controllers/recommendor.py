@@ -12,7 +12,6 @@ from scipy import stats
 
 
 argument = sys.argv
-# print(argument[1])
 # Regular expression pattern to match key-value pairs
 pattern = r'(\w+):([\d.]+)'
 # Extracting key-value pairs using regular expression
