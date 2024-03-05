@@ -35,8 +35,8 @@ Route::group(['middleware'=>['auth:sanctum']], function () {
     Route::put('/exercise',[ExerciseController::class,'update']);
     Route::delete('/exercise/{id}',[ExerciseController::class,'destroy']);
 
-    Route::post('/why',[MakeRecommendation::class, 'getRequest']);
-    Route::post('/recommendexercise',[RecommendExerciseController::class,'recommend']);
+    Route::get('/why',[MakeRecommendation::class, 'getRequest']);
+    Route::get('/recommendexercise',[RecommendExerciseController::class,'recommend']);
 
     Route::get('/ufeature',[UserFeature::class,'view']);
     Route::get('/ufeature',[UserFeature::class,'view']);
