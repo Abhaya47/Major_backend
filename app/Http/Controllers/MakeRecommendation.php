@@ -98,7 +98,8 @@ class MakeRecommendation extends Controller
 
     function meal($mealneeds){
         $mealneeds=json_encode($mealneeds);
-        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py $mealneeds";
+        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py 2>&1 $mealneeds";
+//        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py 2>&1 $mealneeds";
         $output=exec($command,$outputArray,$returnCode);
         return($outputArray);
 
