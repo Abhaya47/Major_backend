@@ -9,6 +9,7 @@ import numpy as np
 import pickle
 import sys
 
+print("hello")
 argument = sys.argv
 numbers_string = argument[1]
 
