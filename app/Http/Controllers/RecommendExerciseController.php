@@ -18,7 +18,7 @@ class RecommendExerciseController extends Controller
         $sugar = $ufeature[0]["sugar"];
         $body=[$weight,$pressure,$sugar];
         $body=json_encode($body);
-        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/trying.py $body";
+        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/trying.py 2>&1 $body";
         $output=exec($command,$outputArray,$returnCode);
         if ($returnCode == 0) {
 
