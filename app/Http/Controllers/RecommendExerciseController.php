@@ -20,6 +20,7 @@ class RecommendExerciseController extends Controller
         $body=json_encode($body);
         $command="python3.8 /var/www/Major_backend/app/Http/Controllers/trying.py 2>&1 $body";
         $output=exec($command,$outputArray,$returnCode);
+        dd($output);
         if ($returnCode == 0) {
 
         } else {
