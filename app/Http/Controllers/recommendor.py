@@ -33,12 +33,12 @@ if 'sodium' in data_dict and 'sugar' in data_dict:
     flist={'calories': calories,'sugar':0,'carbs':carbs,'sodium':0}
 
 elif 'sodium' in data_dict and 'sugar' not in data_dict:
-    calories, sodium = map(float, [value for key, value in matches])
+    calories, protein, total_fat, carbs, sodium = map(float, [value for key, value in matches])
 
     flist={'calories': calories, 'sodium':0}
 
 elif 'sodium' not in data_dict and 'sugar' in data_dict:
-    calories, total_fat, carbs, sugar = map(float, [value for key, value in matches])
+    calories, protein, total_fat, carbs, sugar = map(float, [value for key, value in matches])
 
     flist={'calories': calories,'total_fat':total_fat,'sugar':0,'carbs':carbs}
 

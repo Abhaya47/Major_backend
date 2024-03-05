@@ -20,9 +20,6 @@ class MakeRecommendation extends Controller
         //    Returns:
         //    float: Estimated daily caloric needs
 
-        $feature = new UserFeature();
-
-
         if ($gender == "male") {
             $bmr = 88.362 + (13.397 * $weight) + (4.799 * $height) - (5.677 * $age);
         } else {
@@ -69,17 +66,14 @@ class MakeRecommendation extends Controller
 //        }
     }
 
-    public function getRequest(Request $request){
-        $frequency=($request["frequency"]);
-        $weight=($request["weight"]);
-        $weightArray = json_decode($weight, true);
+    public function getRequest(){
+        $frequency=3;
+        $weightArray=[40,30,30];
+//        $weightArray = json_decode($weight, true);
         $needs=$this->get_dietary_need();
         $i=0;
-
-//        $calorie=$needs[0];
-//        dump($calorie);
-//        die;
         while($frequency>0){
+            $meal=[];
             foreach($needs as $onenutri){
                 $meal[]=($onenutri*$weightArray[$i])/100;
             }
@@ -95,6 +89,7 @@ class MakeRecommendation extends Controller
             if($meal[2]==0 & $meal[3]==0){
                 $mealneeds = array('calories' => round($meal[0],2), 'total_fat' => round($meal[1],2), 'protein' =>$meal[4],'carbs' =>round($meal[5],2));
             }
+            dump($meal);
             $recommends[$i]=$this->meal($mealneeds);
             $i++;
             $frequency--;
@@ -104,7 +99,7 @@ class MakeRecommendation extends Controller
 
     function meal($mealneeds){
         $mealneeds=json_encode($mealneeds);
-        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py $mealneeds";
+        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py 2>&1 $mealneeds";
         $output=exec($command,$outputArray,$returnCode);
         return($outputArray);
 
