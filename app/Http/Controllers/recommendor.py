@@ -1,203 +1,100 @@
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
-from sklearn.metrics.pairwise import euclidean_distances
-from collections import defaultdict
+import sklearn
+import joblib
+import pickle
+import tensorflow as tf
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Dropout, Dense
+from tensorflow.keras.optimizers import Adam
 import pandas as pd
 import numpy as np
 import sys
-import json
-import re
-from scipy import stats
-
+import os
+from typing import Dict, Text
+import warnings
+import os
 
 argument = sys.argv
-# Regular expression pattern to match key-value pairs
-pattern = r'(\w+):([\d.]+)'
-# Extracting key-value pairs using regular expression
-matches = re.findall(pattern, argument[1])
+numbers_string = argument[1]
 
-# Creating variables dynamically for each value
-data_dict = {key: float(value) for key, value in matches}
+# Removing the brackets and splitting the string by comma to get individual numbers as strings
+numbers_list = numbers_string.strip('[]').split(',')
 
-if 'sodium' in data_dict and 'sugar' in data_dict:
-# Now you can access each value using its corresponding key
-    calories = data_dict.get('calories', 0.0)  # Default value 0.0 if 'calories' key is not found
-    total_fat = data_dict.get('total_fat', 0.0)
-    protein = data_dict.get('protein', 0.0)
-    carbs = data_dict.get('carbs', 0.0)
-    sodium = data_dict.get('sodium', 0.0)
-    sugar = data_dict.get('sugar', 0.0)
+# Converting the strings to floats
+numbers = [float(num) for num in numbers_list]
 
-    flist={'calories': calories,'sugar':0,'carbs':carbs,'sodium':0}
+model = tf.keras.models.load_model('/var/www/Major_backend/app/Http/Controllers/model')
+with open('/var/www/Major_backend/app/Http/Controllers/saved_dictionary.pkl', 'rb') as f:
+    min_max_values = pickle.load(f)
+data = {
+    'needs':[numbers[0]],
+    'pressure':[numbers[1]],
+    'sugarb':[numbers[2]]
+}
+# Create DataFrame from the dictionary
+demo_df = pd.DataFrame(data)
 
-elif 'sodium' in data_dict and 'sugar' not in data_dict:
-    calories, protein, total_fat, carbs, sodium = map(float, [value for key, value in matches])
+scaled_demo_df = demo_df.copy()
 
-    flist={'calories': calories, 'sodium':0}
+columns_to_scale=['needs','pressure','sugarb']
+for column in columns_to_scale:
+    if column in min_max_values:
+        min_val = min_max_values[column]['min']
+        max_val = min_max_values[column]['max']
+        scaled_demo_df[column] = ((demo_df[column] - min_val) / (max_val - min_val))
+scaled_demo_df=scaled_demo_df.to_numpy()
+scaled_demo_df = scaled_demo_df.reshape((1, 1, 3))
+inp=scaled_demo_df
+ans=model.predict(inp)
 
-elif 'sodium' not in data_dict and 'sugar' in data_dict:
-    calories, protein, total_fat, carbs, sugar = map(float, [value for key, value in matches])
+# Convert the array to a DataFrame
+ans = pd.DataFrame(data_array, columns=['Calories','SodiumContent', 'CarbohydrateContent', 'SugarContent'])data = {
+    'needs':[inp[0][0][0]],
+    'pressure':[inp[0][0][1]],
+    'sugarb':[inp[0][0][2]]
+}
 
-    flist={'calories': calories,'total_fat':total_fat,'sugar':0,'carbs':carbs}
+# Create DataFrame
+inp = pd.DataFrame(data)
 
-elif 'sodium' not in data_dict and 'sugar' not in data_dict:
-    calories, total_fat, protein, carbs = map(float, [value for key, value in matches])
+# Display the DataFrame
+out=pd.concat([inp,ans], axis=1)
+out
+inp = pd.DataFrame(data)
+out=pd.concat([inp,ans], axis=1)
+unscaled_df = out.copy()
 
-    flist={'calories': calories,'protein':protein,'total_fat':total_fat,'carbs':carbs}
+columns_to_scale=['Calories','SodiumContent','CarbohydrateContent', 'SugarContent','needs','pressure','sugarb']
 
+for column in columns_to_scale:
+    if column in min_max_values:
+        min_val = min_max_values[column]['min']
+        max_val = min_max_values[column]['max']
+        # Apply the inverse min-max scaling formula
+        unscaled_df[column] = (out[column] * (max_val - min_val)) + min_val
 
-def recommendation(flist):
-    df1=pd.read_csv("/var/www/Major_backend/app/Http/Controllers/df1.csv")
-    df1.drop('Unnamed: 0', axis=1, inplace=True)
-    kmeans =Food_Recommender([flist],df1)
-    return kmeans
-def Food_Recommender(food_list, df):
-    tmp = []
-    for x in food_list:
-        if 'calories' in x:
-            calories = x['calories']
-            tmp.append(calories)
-        if 'protein' in x:
-            protein = x['protein']
-            tmp.append(protein)
-        if 'sugar' in x:
-            sugar = x['sugar']
-            tmp.append(sugar)
-        if 'sodium' in x:
-            sodium = x['sodium']
-            tmp.append(sodium)
-        if 'total_fat' in x:
-            total_fat = x['total_fat']
-            tmp.append(total_fat)
-        if 'carbs' in x:
-            carbs = x['carbs']
-            tmp.append(carbs)
+Calories=unscaled_df['Calories'][0]
+SodiumContent=unscaled_df['SodiumContent'][0]
+CarbohydrateContent=unscaled_df['CarbohydrateContent'][0]
+SugarContent=unscaled_df['SugarContent'][0]
 
-    df = df[food_list[0].keys()]
-    df.loc[1] = tmp
-    df1=df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
+predicted_nutritional_data=pd.read_csv('/content/merged - Sheet1.csv')
 
-    scaler = StandardScaler()
+# Define filtering criteria
+desired_calorie_range = (Calories-100,Calories+100)  # Calorie range: 400-600 calories
+desired_sodium_limit = (SodiumContent)# Sodium content limit: less than 1.5 grams
+desired_carbohydrate_limit = (CarbohydrateContent)# Sodium content limit: less than 1.5 grams
+desired_sugar_limit = (SugarContent)# Sodium content limit: less than 1.5 grams
 
-    scaled_X = scaler.fit_transform(df1.values)
+# Ensure 'Sodium' is in grams. If it's in mg, you might need to convert:
+# predicted_nutritional_data['Sodium'] = predicted_nutritional_data['Sodium'] / 1000
 
-    scaled_df = pd.DataFrame(scaled_X,columns=df1.columns)
+# Filter DataFrame based on criteria
+filtered_df = predicted_nutritional_data[(predicted_nutritional_data['Calories'] >= desired_calorie_range[0]) &
+                                         (predicted_nutritional_data['Calories'] <= desired_calorie_range[1]) &
+                                         (predicted_nutritional_data['SodiumContent'] <= desired_sodium_limit)]
 
-#     kmeans = KMeans(n_clusters=6,init='k-means++',n_init=100,random_state=5).fit(scaled_df)
-    reference_point = df.loc[1]
+# Display filtered DataFrame
+print(filtered_df)
+print(decoded_df.to_numpy())
 
-    distances = np.sqrt(np.sum((df - reference_point)**2, axis=1))
-
-    closest_indices = np.argsort(distances)[1:5+1]
-
-    closest_points = df.loc[closest_indices]
-    index= closest_points.index
-    pdf=pd.read_csv("/var/www/Major_backend/app/Http/Controllers/merged.csv")
-    foods=pdf.iloc[index]
-    return(foods[['name','nutrition']].to_dict('records'))
-
-print(recommendation(flist))
-
-#
-# from sklearn.cluster import KMeans
-# from sklearn.preprocessing import StandardScaler
-# from sklearn.pipeline import Pipeline
-# from sklearn.metrics.pairwise import euclidean_distances
-# from collections import defaultdict
-# import pandas as pd
-# import numpy as np
-# import sys
-# import json
-# import re
-# from scipy import stats
-#
-# # argument = sys.argv
-# # print(argument[1])
-# # Regular expression pattern to match key-value pairs
-# pattern = r'(\w+):([\d.]+)'
-#
-# # Extracting key-value pairs using regular expression
-# # matches = re.findall(pattern, argument[1])
-#
-# # Creating variables dynamically for each value
-# data_dict = {'calories': 898.47, 'protein': 24.0, 'total_fat': 24.96, 'sugar': 0, 'carbs': 123.54, 'sodium': 0}
-#
-#
-# if 'sodium' in data_dict and 'sugar' in data_dict:
-# # Now you can access each value using its corresponding key
-#     calories = data_dict.get('calories', 0.0)  # Default value 0.0 if 'calories' key is not found
-#     total_fat = data_dict.get('total_fat', 0.0)
-#     protein = data_dict.get('protein', 0.0)
-#     carbs = data_dict.get('carbs', 0.0)
-#     sodium = data_dict.get('sodium', 0.0)
-#     sugar = data_dict.get('sugar', 0.0)
-#
-#     flist={'calories': calories,'protein':protein,'total_fat':total_fat,'sugar':sugar,'carbs':carbs,'sodium':sodium}
-#
-# elif 'sodium' in data_dict and 'sugar' not in data_dict:
-#     calories, total_fat, protein, carbs, sodium = map(float, [value for key, value in matches])
-#
-#     flist={'calories': calories,'protein':protein,'total_fat':total_fat,'carbs':carbs,'sodium':sodium}
-#
-# elif 'sodium' not in data_dict and 'sugar' in data_dict:
-#     calories, total_fat, protein, carbs, sugar = map(float, [value for key, value in matches])
-#
-#     flist={'calories': calories,'protein':protein,'total_fat':total_fat,'sugar':sugar,'carbs':carbs}
-#
-# elif 'sodium' not in data_dict and 'sugar' not in data_dict:
-#     calories, total_fat, protein, carbs = map(float, [value for key, value in matches])
-#
-#     flist={'calories': calories,'protein':protein,'total_fat':total_fat,'carbs':carbs}
-#
-#
-# def recommendation(flist):
-#     df1=pd.read_csv("/var/www/Major_backend/app/Http/Controllers/df1.csv")
-#     df1.drop('Unnamed: 0', axis=1, inplace=True)
-#     kmeans =Food_Recommender([flist],df1)
-#     return kmeans
-#
-# def Food_Recommender(food_list, df):
-#     tmp = []
-#     for x in food_list:
-#         if 'calories' in x:
-#             calories = x['calories']
-#             tmp.append(calories)
-#         if 'protein' in x:
-#             protein = x['protein']
-#             tmp.append(protein)
-#         if 'sugar' in x:
-#             sugar = x['sugar']
-#             tmp.append(sugar)
-#         if 'sodium' in x:
-#             sodium = x['sodium']
-#             tmp.append(sodium)
-#         if 'total_fat' in x:
-#             total_fat = x['total_fat']
-#             tmp.append(total_fat)
-#         if 'carbs' in x:
-#             carbs = x['carbs']
-#             tmp.append(carbs)
-#
-#     df = df[food_list[0].keys()]
-#     df.loc[1] = tmp
-#     df1=df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
-#
-#     scaler = StandardScaler()
-#
-#     scaled_X = scaler.fit_transform(df1.values)
-#
-#     scaled_df = pd.DataFrame(scaled_X,columns=df1.columns)
-#
-#     kmeans = KMeans(n_clusters=6,init='k-means++',n_init=100,random_state=5).fit(scaled_df)
-#     reference_point = df.loc[1]
-#
-#     distances = np.sqrt(np.sum((df - reference_point)**2, axis=1))
-#
-#     closest_indices = np.argsort(distances)[1:5+1]
-#
-#     closest_points = df.loc[closest_indices]
-#
-#     return closest_points
-#
-# print(recommendation(flist))
