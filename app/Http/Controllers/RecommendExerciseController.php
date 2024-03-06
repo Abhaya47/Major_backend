@@ -36,7 +36,7 @@ class RecommendExerciseController extends Controller
                 "Exercise_Name_2" => $words[1],
                 "Exercise_Name_3" => $words[2]
             ];
-            return response($data);
+            return response(json_encode($data));
         } else {
             echo "Error executing Python script.\n";
             return (response(status: 500));
