@@ -29,7 +29,26 @@ class MakeRecommendation extends Controller
         return $bmr * 1.55;
     }
 
-    public function get_dietary_need()
+//    public function get_dietary_need()
+//    {
+//        $user = Auth::user();
+//        $ufeature = Features::query()->where('uid', '=', $user->id)->get();
+//        $gender = $ufeature[0]["gender"];
+//        $weight = $ufeature[0]["weight"];
+//        $pressure = $ufeature[0]["pressure"];
+//        $sugar = $ufeature[0]["sugar"];
+//        $age = $ufeature[0]["age"];
+//        $height = $ufeature[0]["height"] * 100;
+//        # Calculate caloric needs
+//        $dailyCalories = $this->calculate_caloric_needs($gender, $weight, $height, $age);
+//        $dailyCarbs = $dailyCalories * 0.55 / 4;
+//        $dailyProtein = $weight * 1.2;
+//        $fat = $dailyCalories * 0.25 / 9;
+//        $need= [$dailyCalories*0.4, $pressure,$sugar];
+//        return($need);
+//    }
+
+    public function getRequest()
     {
         $user = Auth::user();
         $ufeature = Features::query()->where('uid', '=', $user->id)->get();
@@ -42,66 +61,27 @@ class MakeRecommendation extends Controller
         # Calculate caloric needs
         $dailyCalories = $this->calculate_caloric_needs($gender, $weight, $height, $age);
         $dailyCarbs = $dailyCalories * 0.55 / 4;
-        $dailyProtein = $weight * 1.2;
-        $fat = $dailyCalories * 0.25 / 9;
-        $need= [$dailyCalories*0.4, $pressure,$sugar];
-        return($need);
-//        if (isset($ufeature[0]['pressure']) || array_key_exists('pressure', $ufeature)) {        # Dietary plan{
-//            $Pflag=true;
-//        }
-//        if (isset($ufeature[0]['sugar']) || array_key_exists('sugar', $ufeature)){
-//            $sflags=true;
-//        }
-//        if ($Pflag & $sflags){
-//            $needs[] = [$dailyCalories, $fat, 0.00, 0.00, $dailyProtein, $dailyCarbs];
-//        }
-//        elseif($Pflag){
-//            $needs[]=[$dailyCalories, $fat, 0.00, $dailyProtein, $dailyCarbs];
-//        }
-//        elseif ($sflags){
-//            $needs[]=[$dailyCalories, $fat, 0.00, $dailyProtein, $dailyCarbs];
-//        }
-//        else{
-//            $needs[]=[$dailyCalories, $fat, $dailyProtein, $dailyCarbs];
-//        }
-    }
+        $body = [$dailyCalories * 0.4, $pressure, $sugar];
+        $body = json_encode($body);
+        $command = "python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py $body";
+        $output = exec($command, $outputArray, $returnCode);
+        $raw=(json_decode($outputArray[1],true));
+        $newArray=[];
+        foreach($raw["data"] as $item){
+            $newArray[]=[
+                "Name"=>$item[0],
+                "Calories"=>$item[1],
+                 "FatContent"=>$item[2],
+                 "SaturatedFatContent"=>$item[3],
+                 "CholesterolContent"=>$item[4],
+                 "SodiumContent"=>$item[5],
+                 "CarbohydrateContent"=>$item[6],
+                 "FiberContent"=>$item[7],
+                 "SugarContent"=>$item[8],
+                 "ProteinContent"=>$item[9],
+                 "type"=>$item[10]
+            ];
+        }
+        return response()->json($newArray);
+    }}
 
-    public function getRequest(){
-
-//        $weightArray = json_decode($weight, true);
-        $needs=$this->get_dietary_need();
-        $recommends=$this->meal($needs);
-//        while($frequency>0){
-//            $meal=[];
-//            foreach($needs as $onenutri){
-//                $meal[]=($onenutri*$weightArray[$i])/100;
-//            }
-//            if($meal[2]!=0 & $meal[3]!=0) {
-//                $mealneeds = array('calories' => round($meal[0],2), 'total_fat' => round($meal[1],2), 'sugar' =>$meal[2],'sodium' =>$meal[3],'protein' =>$meal[4],'carbs' =>round($meal[5],2));
-//            }
-//            if($meal[2]!=0 & $meal[3]==0){
-//                $mealneeds = array('calories' => round($meal[0],2), 'total_fat' => round($meal[1],2), 'sodium' =>$meal[3],'protein' =>$meal[4],'carbs' =>round($meal[5],2));
-//            }
-//            if($meal[2]==0 & $meal[3]!=0){
-//                $mealneeds = array('calories' => round($meal[0],2), 'total_fat' => round($meal[1],2), 'sugar' =>$meal[2],'protein' =>$meal[4],'carbs' =>round($meal[5],2));
-//            }
-//            if($meal[2]==0 & $meal[3]==0){
-//                $mealneeds = array('calories' => round($meal[0],2), 'total_fat' => round($meal[1],2), 'protein' =>$meal[4],'carbs' =>round($meal[5],2));
-//            }
-//            $recommends[$i]=$this->meal($mealneeds);
-//            $i++;
-//            $frequency--;
-//        }
-    return response(json_encode($recommends));
-    }
-
-    function meal($mealneeds){
-        $mealneeds=json_encode($mealneeds);
-        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py 2>&1 $mealneeds";
-//        $command="python3.8 /var/www/Major_backend/app/Http/Controllers/recommendor.py 2>&1 $mealneeds";
-        $output=exec($command,$outputArray,$returnCode);
-
-        return($outputArray);
-
-    }
-}
