@@ -32,14 +32,14 @@ class RecommendExerciseController extends Controller
             $numbers[3]=(int)$numbers[3];
             $numbers[4]=(int)$numbers[4];
             $data = [
-                "Duration" => $numbers[2],
+                ["Duration" => $numbers[2],
                 "Duration_2" => $numbers[3],
                 "Duration_3" => $numbers[4],
                 "Exercise_Name" => $words[0],
                 "Exercise_Name_2" => $words[1],
-                "Exercise_Name_3" => $words[2]
+                "Exercise_Name_3" => $words[2]]
             ];
-            return response(json_encode($data));
+            return response()->json($data);
         } else {
             echo "Error executing Python script.\n";
             return (response(status: 500));
