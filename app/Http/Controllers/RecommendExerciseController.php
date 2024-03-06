@@ -28,6 +28,9 @@ class RecommendExerciseController extends Controller
             $numbers = $matches[0];
             preg_match_all("/'([^']+)'/", $behind, $matches);
             $words = $matches[1];
+            $numbers[2]=(int)$numbers[2];
+            $numbers[3]=(int)$numbers[3];
+            $numbers[4]=(int)$numbers[4];
             $data = [
                 "Duration" => $numbers[2],
                 "Duration_2" => $numbers[3],
